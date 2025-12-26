@@ -78,8 +78,8 @@ class HebbianRulePerWeight:
         
         Args:
             weights: Current weight matrix (numpy array)
-            pre_activation: Pre-synaptic activations (numpy array)
-            post_activation: Post-synaptic activations (numpy array)
+            pre_activation: Pre-synaptic activations (numpy array, 1D)
+            post_activation: Post-synaptic activations (numpy array, 1D)
         
         Returns:
             Updated weights (numpy array)
@@ -87,6 +87,16 @@ class HebbianRulePerWeight:
         # Update learning rate with exponential decay
         self.lr = self.initial_lr * np.exp(-self.decay_rate * self.timestep)
         self.timestep += 1
+        
+        # Ensure inputs are 1D arrays
+        pre_activation = np.atleast_1d(pre_activation).flatten()
+        post_activation = np.atleast_1d(post_activation).flatten()
+        
+        # Validate shapes match weight dimensions
+        if pre_activation.shape[0] != self.weights_shape[0]:
+            raise ValueError(f"Pre-activation shape {pre_activation.shape} does not match weight shape {self.weights_shape}")
+        if post_activation.shape[0] != self.weights_shape[1]:
+            raise ValueError(f"Post-activation shape {post_activation.shape} does not match weight shape {self.weights_shape}")
         
         # Compute Hebbian update
         # Δw = μ(t) * (A*pre*post + B*pre + C*post + D)

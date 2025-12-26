@@ -161,12 +161,12 @@ def run_hebbian(exp_info: Dict, env: Any, model: Any, stop: Dict = None) -> Dict
     print(f"Parameters saved to: {checkpoint_path}")
     print(f"{'='*60}\n")
     
-    # Close environment
-    env.close()
-    
     # Return results in a format similar to Ray Tune results
     results['best_fitness'] = trainer.best_fitness
     results['best_params'] = trainer.best_params
     results['checkpoint_path'] = checkpoint_path
+    
+    # Close environment
+    env.close()
     
     return results

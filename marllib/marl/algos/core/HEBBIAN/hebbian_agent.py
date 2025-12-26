@@ -66,8 +66,13 @@ class HebbianAgent:
         self.is_discrete = isinstance(act_space, gym.spaces.Discrete)
         if self.is_discrete:
             self.act_dim = act_space.n
+            self.act_space = act_space
         elif isinstance(act_space, gym.spaces.Box):
             self.act_dim = act_space.shape[0]
+            self.act_space = act_space
+            # Store action bounds for clipping
+            self.action_low = act_space.low
+            self.action_high = act_space.high
         else:
             raise ValueError(f"Unsupported action space: {type(act_space)}")
         
@@ -158,6 +163,8 @@ class HebbianAgent:
             if not deterministic:
                 # Add exploration noise
                 action = action + np.random.randn(*action.shape) * self.exploration_noise
+            # Clip action to valid bounds
+            action = np.clip(action, self.action_low, self.action_high)
             return action
     
     def reset(self):

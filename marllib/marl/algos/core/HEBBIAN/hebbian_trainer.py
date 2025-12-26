@@ -64,6 +64,7 @@ class HebbianTrainer:
         self.eval_episodes = config.get('eval_episodes', 3)
         self.max_steps = config.get('max_steps', 600)
         self.verbose = config.get('verbose', False)
+        self.seed = config.get('seed', None)
         
         # Algorithm hyperparameters (passed to agents)
         self.algo_config = {
@@ -86,7 +87,8 @@ class HebbianTrainer:
             self.param_dim,
             pop_size=self.pop_size,
             sigma0=self.sigma0,
-            verbose=self.verbose
+            verbose=self.verbose,
+            seed=self.seed
         )
         
         # Best parameters tracking
