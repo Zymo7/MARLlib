@@ -20,7 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .run_cc import run_cc
-from .run_vd import run_vd
-from .run_il import run_il
-from .run_hebbian import run_hebbian
+from .hebbian_agent import HebbianAgent
+from .hebbian_rule import HebbianRulePerWeight
+from .hebbian_trainer import HebbianTrainer
+from .cmaes_optimizer import CMAESOptimizer
+
+__all__ = [
+    'HebbianAgent',
+    'HebbianRulePerWeight',
+    'HebbianTrainer',
+    'CMAESOptimizer'
+]
