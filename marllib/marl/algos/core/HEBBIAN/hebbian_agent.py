@@ -41,6 +41,10 @@ class HebbianAgent:
     weights online during the forward pass.
     """
     
+    # Default initialization and exploration parameters
+    DEFAULT_WEIGHT_INIT_SCALE = 0.1
+    DEFAULT_EXPLORATION_NOISE = 0.1
+    
     def __init__(self, obs_space, act_space, config):
         """
         Initialize Hebbian agent.
@@ -74,11 +78,13 @@ class HebbianAgent:
         self.decay_rate = config.get('decay_rate', 0.001)
         self.clamp = config.get('clamp', 2.0)
         self.action_gain = config.get('action_gain', 2.0)
+        self.weight_init_scale = config.get('weight_init_scale', self.DEFAULT_WEIGHT_INIT_SCALE)
+        self.exploration_noise = config.get('exploration_noise', self.DEFAULT_EXPLORATION_NOISE)
         
         # Initialize weights
-        self.W1 = np.random.randn(self.obs_dim, self.hidden_dim1) * 0.1
-        self.W2 = np.random.randn(self.hidden_dim1, self.hidden_dim2) * 0.1
-        self.W3 = np.random.randn(self.hidden_dim2, self.act_dim) * 0.1
+        self.W1 = np.random.randn(self.obs_dim, self.hidden_dim1) * self.weight_init_scale
+        self.W2 = np.random.randn(self.hidden_dim1, self.hidden_dim2) * self.weight_init_scale
+        self.W3 = np.random.randn(self.hidden_dim2, self.act_dim) * self.weight_init_scale
         
         # Initialize Hebbian plasticity rules for each layer
         self.hebbian1 = HebbianRulePerWeight(
@@ -151,7 +157,7 @@ class HebbianAgent:
             action = np.tanh(output) * self.action_gain
             if not deterministic:
                 # Add exploration noise
-                action = action + np.random.randn(*action.shape) * 0.1
+                action = action + np.random.randn(*action.shape) * self.exploration_noise
             return action
     
     def reset(self):

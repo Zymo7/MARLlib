@@ -63,6 +63,7 @@ class HebbianTrainer:
         self.sigma0 = config.get('sigma0', 0.5)
         self.eval_episodes = config.get('eval_episodes', 3)
         self.max_steps = config.get('max_steps', 600)
+        self.verbose = config.get('verbose', False)
         
         # Algorithm hyperparameters (passed to agents)
         self.algo_config = {
@@ -71,7 +72,9 @@ class HebbianTrainer:
             'lr': config.get('lr', 0.01),
             'decay_rate': config.get('decay_rate', 0.001),
             'clamp': config.get('clamp', 2.0),
-            'action_gain': config.get('action_gain', 2.0)
+            'action_gain': config.get('action_gain', 2.0),
+            'weight_init_scale': config.get('weight_init_scale', 0.1),
+            'exploration_noise': config.get('exploration_noise', 0.1)
         }
         
         # Create a template agent to get parameter dimensions
@@ -82,7 +85,8 @@ class HebbianTrainer:
         self.optimizer = CMAESOptimizer(
             self.param_dim,
             pop_size=self.pop_size,
-            sigma0=self.sigma0
+            sigma0=self.sigma0,
+            verbose=self.verbose
         )
         
         # Best parameters tracking

@@ -42,7 +42,10 @@ class HebbianRulePerWeight:
         - μ(t): learning rate with exponential decay
     """
     
-    def __init__(self, weights_shape, lr=0.01, decay_rate=0.001, clamp=2.0):
+    # Default initialization scale for plasticity parameters
+    DEFAULT_INIT_SCALE = 0.1
+    
+    def __init__(self, weights_shape, lr=0.01, decay_rate=0.001, clamp=2.0, init_scale=None):
         """
         Initialize Hebbian rule.
         
@@ -51,6 +54,7 @@ class HebbianRulePerWeight:
             lr: Initial learning rate (float)
             decay_rate: Exponential decay rate for learning rate (float)
             clamp: Maximum absolute value for weight clamping (float)
+            init_scale: Scale for random initialization of plasticity parameters (float)
         """
         self.weights_shape = weights_shape
         self.lr = lr
@@ -59,11 +63,14 @@ class HebbianRulePerWeight:
         self.clamp = clamp
         self.timestep = 0
         
+        if init_scale is None:
+            init_scale = self.DEFAULT_INIT_SCALE
+        
         # Initialize ABCD plasticity parameters per weight
-        self.A = np.random.randn(*weights_shape) * 0.1
-        self.B = np.random.randn(*weights_shape) * 0.1
-        self.C = np.random.randn(*weights_shape) * 0.1
-        self.D = np.random.randn(*weights_shape) * 0.1
+        self.A = np.random.randn(*weights_shape) * init_scale
+        self.B = np.random.randn(*weights_shape) * init_scale
+        self.C = np.random.randn(*weights_shape) * init_scale
+        self.D = np.random.randn(*weights_shape) * init_scale
     
     def update(self, weights, pre_activation, post_activation):
         """

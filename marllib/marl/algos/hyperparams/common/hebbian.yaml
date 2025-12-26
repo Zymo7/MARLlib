@@ -35,6 +35,10 @@ algo_args:
   
   # Action parameters
   action_gain: 2.0       # Gain for continuous actions
+  
+  # Optional parameters (use defaults if not specified)
+  # weight_init_scale: 0.1      # Scale for weight initialization
+  # exploration_noise: 0.1      # Exploration noise for continuous actions
 
 # Training hyperparameters
 generations: 100         # Number of generations to train
@@ -42,3 +46,4 @@ pop_size: 30            # CMA-ES population size
 sigma0: 0.5             # Initial standard deviation for CMA-ES
 eval_episodes: 3        # Episodes per fitness evaluation
 max_steps: 600          # Maximum steps per episode
+# verbose: false        # Enable verbose CMA-ES output for debugging

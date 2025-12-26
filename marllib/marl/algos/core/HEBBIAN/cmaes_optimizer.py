@@ -35,7 +35,7 @@ class CMAESOptimizer:
     This is used to evolve the Hebbian agent parameters.
     """
     
-    def __init__(self, param_dim, pop_size=30, sigma0=0.5):
+    def __init__(self, param_dim, pop_size=30, sigma0=0.5, verbose=False):
         """
         Initialize CMA-ES optimizer.
         
@@ -43,6 +43,7 @@ class CMAESOptimizer:
             param_dim: Number of parameters to optimize (int)
             pop_size: Population size (int)
             sigma0: Initial standard deviation (float)
+            verbose: Enable verbose output for debugging (bool)
         """
         self.param_dim = param_dim
         self.pop_size = pop_size
@@ -51,11 +52,15 @@ class CMAESOptimizer:
         # Initialize CMA-ES with zero mean
         x0 = np.zeros(param_dim)
         
+        # Configure verbosity
+        verb_disp = 1 if verbose else 0
+        verbose_level = 1 if verbose else -9
+        
         # Create optimizer
         self.es = cma.CMAEvolutionStrategy(
             x0,
             sigma0,
-            {'popsize': pop_size, 'verb_disp': 0, 'verbose': -9}
+            {'popsize': pop_size, 'verb_disp': verb_disp, 'verbose': verbose_level}
         )
     
     def ask(self):
