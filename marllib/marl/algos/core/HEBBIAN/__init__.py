@@ -25,9 +25,21 @@ from .hebbian_rule import HebbianRulePerWeight
 from .hebbian_trainer import HebbianTrainer
 from .cmaes_optimizer import CMAESOptimizer
 
-__all__ = [
-    'HebbianAgent',
-    'HebbianRulePerWeight',
-    'HebbianTrainer',
-    'CMAESOptimizer'
-]
+# PyTorch version (optional)
+try:
+    from .hebbian_torch import HebbianAgentTorch, HebbianRulePerWeightTorch
+    __all__ = [
+        'HebbianAgent',
+        'HebbianRulePerWeight',
+        'HebbianTrainer',
+        'CMAESOptimizer',
+        'HebbianAgentTorch',
+        'HebbianRulePerWeightTorch'
+    ]
+except ImportError:
+    __all__ = [
+        'HebbianAgent',
+        'HebbianRulePerWeight',
+        'HebbianTrainer',
+        'CMAESOptimizer'
+    ]

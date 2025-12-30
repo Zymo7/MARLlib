@@ -9,16 +9,18 @@ The Hebbian MARL algorithm uses online Hebbian plasticity learning with:
 - 3-layer neural network with tanh activation
 - CMA-ES evolutionary optimization
 - Support for both discrete and continuous action spaces
+- **Dual backend support: PyTorch (default) or NumPy**
 
 ## File Structure
 
 ```
 marllib/marl/algos/core/HEBBIAN/
 ├── __init__.py                 # Module exports
-├── hebbian_rule.py            # Per-weight ABCD Hebbian plasticity rule
-├── hebbian_agent.py           # 3-layer MLP agent with online plasticity
+├── hebbian_rule.py            # Per-weight ABCD Hebbian plasticity rule (NumPy)
+├── hebbian_agent.py           # 3-layer MLP agent with online plasticity (NumPy)
+├── hebbian_torch.py           # PyTorch implementation of agent and rules ⭐
 ├── cmaes_optimizer.py         # CMA-ES evolution strategy wrapper
-└── hebbian_trainer.py         # Training interface for MARLlib
+└── hebbian_trainer.py         # Training interface (supports both backends)
 
 marllib/marl/algos/
 ├── run_hebbian.py             # Main run script for Hebbian algorithm
@@ -26,23 +28,70 @@ marllib/marl/algos/
     └── hebbian.yaml           # Default hyperparameters
 
 examples/
-└── run_hebbian_mpe.py         # Example usage on MPE environments
+├── run_hebbian_pytorch.py     # PyTorch backend example ⭐ Recommended
+├── run_hebbian_standalone.py  # NumPy backend example
+└── run_hebbian_mpe.py         # Full MARLlib integration example
+```
+
+## Backend Selection
+
+The implementation supports two backends:
+
+### PyTorch Backend (Recommended) ⭐
+- Uses `torch.nn.Module` and `torch.Tensor`
+- Matches original Hebbian MARL v14 architecture
+- GPU acceleration support
+- Learnable plasticity parameters
+- Automatic differentiation capabilities
+
+### NumPy Backend
+- Uses pure NumPy arrays
+- Minimal dependencies
+- CPU-only execution
+- Useful for quick prototyping without PyTorch
+
+The trainer automatically selects PyTorch if available, or falls back to NumPy. You can explicitly control this:
+
+```python
+config = {
+    'use_torch': True,   # Use PyTorch backend (default if available)
+    # 'use_torch': False,  # Force NumPy backend
+    # ... other config
+}
 ```
 
 ## Key Features
 
-### 1. Hebbian Plasticity (hebbian_rule.py)
+### 1. Hebbian Plasticity
+**NumPy version** (`hebbian_rule.py`):
 - Per-weight ABCD parameters for flexible learning rules
 - Exponential learning rate decay: μ(t) = μ₀ * exp(-decay_rate * t)
 - Weight clamping to prevent unbounded growth
-- Configurable initialization scale
 
-### 2. Agent Architecture (hebbian_agent.py)
+**PyTorch version** (`hebbian_torch.py`):
+- Same plasticity rule implemented as `nn.Module`
+- ABCD parameters as learnable `nn.Parameter`
+- GPU-compatible tensor operations
+- Batch processing support
+
+### 2. Agent Architecture
+**Common features**:
 - 3-layer MLP: Input → Hidden1 (tanh) → Hidden2 (tanh) → Output
 - Online weight updates during forward pass
 - Support for both Box (continuous) and Discrete action spaces
 - Action clipping for continuous spaces
 - Configurable exploration noise
+
+**PyTorch specific** (`HebbianAgentTorch`):
+- Inherits from `nn.Module`
+- Weight matrices as `nn.Parameter`
+- Compatible with PyTorch ecosystem
+- GPU acceleration ready
+
+**NumPy specific** (`HebbianAgent`):
+- Lightweight implementation
+- No framework dependencies
+- Pure NumPy operations
 
 ### 3. CMA-ES Optimizer (cmaes_optimizer.py)
 - Wrapper around the `cma` Python library
@@ -52,11 +101,12 @@ examples/
 
 ### 4. Trainer (hebbian_trainer.py)
 - Bridges Hebbian algorithm with MARLlib's multi-agent environments
+- Supports both PyTorch and NumPy backends
 - Evaluates agent populations in parallel
 - Tracks best parameters across generations
 - Checkpoint saving and loading
 
-## Usage Example
+## Usage Example (PyTorch Backend)
 
 ```python
 from marllib import marl
@@ -69,7 +119,7 @@ env_instance, env_config = marl.make_env(
     force_coop=False
 )
 
-# Configure algorithm
+# Configure algorithm with PyTorch backend
 config = env_config.copy()
 config['algo_args'] = {
     'hidden_dim1': 8,
@@ -84,7 +134,8 @@ config.update({
     'pop_size': 30,
     'sigma0': 0.5,
     'eval_episodes': 3,
-    'max_steps': 600
+    'max_steps': 600,
+    'use_torch': True  # Use PyTorch backend (default)
 })
 
 # Run training

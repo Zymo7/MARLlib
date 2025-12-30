@@ -4,11 +4,36 @@ This directory contains example scripts for using the Hebbian MARL algorithm.
 
 ## Available Examples
 
-### 1. `run_hebbian_standalone.py` ⭐ **Recommended for Quick Start**
+### 1. `run_hebbian_pytorch.py` ⭐ **Recommended - PyTorch Backend**
 
-**Use this if you want to test Hebbian MARL quickly without full MARLlib setup.**
+**Use this if you want PyTorch-based neural networks (matches original Hebbian MARL architecture).**
 
-A standalone example that works directly with PettingZoo environments without requiring Ray/RLlib.
+Uses PyTorch for neural network implementation, providing better GPU support and compatibility with the original Hebbian MARL v14 implementation.
+
+**Requirements:**
+```bash
+pip install torch numpy cma gym==0.20.0 pettingzoo[mpe]
+```
+
+**Run:**
+```bash
+python examples/run_hebbian_pytorch.py
+```
+
+**Features:**
+- ✅ PyTorch neural networks (matches original architecture)
+- ✅ GPU acceleration support
+- ✅ Automatic differentiation capabilities
+- ✅ Compatible with PyTorch ecosystem
+- ✅ No Ray/RLlib required
+
+---
+
+### 2. `run_hebbian_standalone.py` (NumPy Backend)
+
+**Use this if you want minimal dependencies without PyTorch.**
+
+A standalone example that works directly with PettingZoo environments using NumPy arrays.
 
 **Requirements:**
 ```bash
@@ -21,14 +46,15 @@ python examples/run_hebbian_standalone.py
 ```
 
 **Features:**
-- ✅ No Ray/RLlib required
-- ✅ Direct PettingZoo environment integration
+- ✅ No PyTorch/Ray/RLlib required
+- ✅ Minimal dependencies
 - ✅ Quick setup and testing
 - ✅ Easy to understand and modify
+- ❗ NumPy arrays instead of PyTorch tensors
 
 ---
 
-### 2. `run_hebbian_mpe.py` (Full MARLlib Integration)
+### 3. `run_hebbian_mpe.py` (Full MARLlib Integration)
 
 **Use this if you have MARLlib fully installed and want to use it with MARLlib's environment wrappers.**
 
@@ -49,7 +75,40 @@ python examples/run_hebbian_mpe.py
 - ✅ Uses MARLlib's environment wrappers
 - ✅ Consistent with other MARLlib examples
 - ✅ Access to MARLlib's environment registry
+- ✅ PyTorch backend by default
 - ❗ Requires Ray/RLlib and full MARLlib setup
+
+---
+
+## Choosing the Right Example
+
+| Feature | PyTorch | NumPy | MARLlib |
+|---------|---------|-------|---------|
+| **Dependencies** | Moderate | Minimal | Full |
+| **Backend** | PyTorch | NumPy | PyTorch |
+| **GPU Support** | ✅ Yes | ❌ No | ✅ Yes |
+| **Original Architecture** | ✅ Yes | ❌ No | ✅ Yes |
+| **Ray/RLlib Required** | ❌ No | ❌ No | ✅ Yes |
+| **Setup Complexity** | Low | Lowest | High |
+| **Best For** | General use | Testing | Full integration |
+
+**Recommendation**: Use `run_hebbian_pytorch.py` for most cases as it provides the best balance of features and ease of use while maintaining compatibility with the original PyTorch-based architecture.
+
+---
+
+## Backend Selection
+
+All examples support both backends through configuration:
+
+```python
+config = {
+    # ... other config ...
+    'use_torch': True   # Use PyTorch (default: True if available)
+    # 'use_torch': False  # Use NumPy
+}
+```
+
+The trainer will automatically fall back to NumPy if PyTorch is not available.
 
 ---
 
@@ -61,13 +120,15 @@ from ray.rllib.models.catalog import ModelCatalog
 ImportError: ...
 ```
 
-**Solution:** Use the standalone version (`run_hebbian_standalone.py`) which doesn't require Ray.
+**Solution 1 (Recommended):** Use the PyTorch standalone version (`run_hebbian_pytorch.py`) which doesn't require Ray.
+
+**Solution 2:** Use the NumPy standalone version (`run_hebbian_standalone.py`) which has minimal dependencies.
 
 ---
 
 ## Training Parameters
 
-Both scripts support the same configuration parameters:
+All scripts support the same configuration parameters:
 
 ### Network Architecture
 - `hidden_dim1`: First hidden layer size (default: 8)
@@ -85,12 +146,13 @@ Both scripts support the same configuration parameters:
 - `eval_episodes`: Episodes per fitness evaluation (default: 2-3)
 - `max_steps`: Maximum steps per episode (default: 100-600)
 - `seed`: Random seed for reproducibility (optional)
+- `use_torch`: Use PyTorch backend (default: True if available)
 
 ---
 
 ## Output
 
-Both scripts will:
+All scripts will:
 1. Train Hebbian agents using CMA-ES evolution
 2. Display training progress (fitness scores per generation)
 3. Save the best parameters to `./results/hebbian_*/best_params.npy`

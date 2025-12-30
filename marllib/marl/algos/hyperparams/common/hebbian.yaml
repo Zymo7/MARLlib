@@ -39,6 +39,7 @@ algo_args:
   # Optional parameters (use defaults if not specified)
   # weight_init_scale: 0.1      # Scale for weight initialization
   # exploration_noise: 0.1      # Exploration noise for continuous actions
+  # use_torch: true             # Use PyTorch backend (default: true if available)
 
 # Training hyperparameters
 generations: 100         # Number of generations to train
@@ -47,3 +48,4 @@ sigma0: 0.5             # Initial standard deviation for CMA-ES
 eval_episodes: 3        # Episodes per fitness evaluation
 max_steps: 600          # Maximum steps per episode
 # verbose: false        # Enable verbose CMA-ES output for debugging
+# use_torch: true       # Use PyTorch backend for neural networks (default: true)

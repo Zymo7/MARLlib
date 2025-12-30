@@ -22,11 +22,19 @@
 
 """
 Hebbian trainer that bridges algorithm with MARLlib infrastructure.
+Supports both NumPy and PyTorch backends.
 """
 
 import numpy as np
 from .hebbian_agent import HebbianAgent
 from .cmaes_optimizer import CMAESOptimizer
+
+# Try to import PyTorch version
+try:
+    from .hebbian_torch import HebbianAgentTorch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
 
 
 class HebbianTrainer:
@@ -57,6 +65,12 @@ class HebbianTrainer:
         self.act_space = env_info['space_act']
         self.num_agents = env_info['num_agents']
         
+        # Determine backend (pytorch or numpy)
+        self.use_torch = config.get('use_torch', TORCH_AVAILABLE)
+        if self.use_torch and not TORCH_AVAILABLE:
+            print("Warning: PyTorch backend requested but not available. Falling back to NumPy.")
+            self.use_torch = False
+        
         # Training hyperparameters
         self.generations = config.get('generations', 100)
         self.pop_size = config.get('pop_size', 30)
@@ -78,8 +92,16 @@ class HebbianTrainer:
             'exploration_noise': config.get('exploration_noise', 0.1)
         }
         
+        # Select agent class based on backend
+        if self.use_torch:
+            self.agent_class = HebbianAgentTorch
+            print(f"Using PyTorch backend for Hebbian agents")
+        else:
+            self.agent_class = HebbianAgent
+            print(f"Using NumPy backend for Hebbian agents")
+        
         # Create a template agent to get parameter dimensions
-        template_agent = HebbianAgent(self.obs_space, self.act_space, self.algo_config)
+        template_agent = self.agent_class(self.obs_space, self.act_space, self.algo_config)
         self.param_dim = template_agent.get_parameter_count()
         
         # Initialize CMA-ES optimizer
@@ -115,7 +137,7 @@ class HebbianTrainer:
             # Create agents for all policies with same parameters
             agents = {}
             for agent_id in self.env.agents:
-                agent = HebbianAgent(self.obs_space, self.act_space, self.algo_config)
+                agent = self.agent_class(self.obs_space, self.act_space, self.algo_config)
                 agent.set_all_parameters(params)
                 agents[agent_id] = agent
             
