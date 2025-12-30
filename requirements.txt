@@ -14,3 +14,4 @@ numpy==1.20.3
 importlib-metadata==4.13.0
 gym==0.20.0
 PyYAML
+cma==3.2.2
